@@ -1,6 +1,8 @@
 import Pojo.PostClass;
 import io.restassured.http.ContentType;
-import netscape.javascript.JSObject;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.response.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.annotations.Test;
@@ -9,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -39,7 +42,7 @@ public class GenelTest {
                 .body("isContactCoding", equalTo(true))
                 .body("isContactLessCoding", equalTo(true))
                 .statusCode(200)
-                .log().all();
+                .log().all(); //all yerine body, cookies ve headers da spesific verilebilir.
     }
 
     @Test(priority = 1, testName = "Mavi Kart Başvuru Id'ye Göre Kart Tipi Kontrolü")
@@ -107,9 +110,50 @@ public class GenelTest {
                 .queryParam("page", 2)
                 .queryParam("id", 5)
                 .when()
-                .get("https://reqres.in/api/{mypath}?/page={page}&id={id}")
+                .get("https://reqres.in/api/{mypath}")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .log().all();
+    }
 
+    @Test
+    public void getCookieTest() {
+
+        Response res = given()
+                .when()
+                .get("https://onlineislemler.turktrust.com.tr/login.xhtml");
+
+        //Spesific cookie get key
+        String cookie = res.getCookie("JSESSIONID");
+        System.out.println("value of cookie is ----> " + cookie);
+
+        //Get all cookies
+        System.out.println("value of all cookies ---> " + res.getCookies());
+
+        // Get all cookies in keyset
+        Map<String, String> cookies_value = res.getCookies();
+        System.out.println("cookies in keyset --> " + cookies_value.keySet());
+
+        for (String k : cookies_value.keySet()) {
+            String cookie_value = res.getCookie(k);
+            System.out.println(k + ": " + cookie_value);
+        }
+
+    }
+
+    @Test
+    public void getHeaderTest() {
+        Response res = given()
+                .when()
+                .get("https://onlineislemler.turktrust.com.tr/login.xhtml");
+
+        String header_value = res.getHeader("Content-Type");
+        System.out.println("Header value is ---> " + header_value);
+
+        //All header key and value
+        Headers headers = res.getHeaders();
+        for (Header h : headers) {
+            System.out.println(h.getName() + ": " + h.getValue());
+        }
     }
 }
