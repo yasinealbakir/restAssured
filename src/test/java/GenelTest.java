@@ -26,7 +26,7 @@ public class GenelTest {
         return jsonData;
     }
 
-    @Test(priority = 1, testName = "TCKK Başvuru Id'ye Göre Kart Tipi Kontrolü")
+    @Test
     public void checkTckkCardTypeTest() {
         // Hashmap using
         HashMap data = new HashMap();
@@ -45,7 +45,7 @@ public class GenelTest {
                 .log().all(); //all yerine body, cookies ve headers da spesific verilebilir.
     }
 
-    @Test(priority = 1, testName = "Mavi Kart Başvuru Id'ye Göre Kart Tipi Kontrolü")
+    @Test
     public void checkBlueCardTypeTest() {
         // org.json library using
         JSONObject jsonData = new JSONObject();
@@ -65,7 +65,7 @@ public class GenelTest {
                 .log().all();
     }
 
-    @Test(priority = 1, testName = "Meclis Kartı Başvuru Id'ye Göre Kart Tipi Kontrolü")
+    @Test
     public void checkMvdCardTypeTest() {
         // pojo class using
         PostClass pojoData = new PostClass();
@@ -85,7 +85,7 @@ public class GenelTest {
                 .log().all();
     }
 
-    @Test(priority = 1, testName = "Özel Güvenlik Kartı Başvuru Id'ye Göre Kart Tipi Kontrolü")
+    @Test
     public void checkSecurityCardTypeTest() throws FileNotFoundException {
         // external json file using
         given()
