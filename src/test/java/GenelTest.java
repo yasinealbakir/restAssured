@@ -5,6 +5,7 @@ import io.restassured.http.Headers;
 import io.restassured.response.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -138,6 +139,7 @@ public class GenelTest {
             String cookie_value = res.getCookie(k);
             System.out.println(k + ": " + cookie_value);
         }
+        Assert.assertEquals(res.getStatusCode(), 200);
 
     }
 
@@ -155,5 +157,78 @@ public class GenelTest {
         for (Header h : headers) {
             System.out.println(h.getName() + ": " + h.getValue());
         }
+    }
+
+    @Test
+    public void jsonObjectConvertTest() {
+        HashMap data = new HashMap();
+        data.put("basvuruId", "200000427");
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(data)
+                .when()
+                .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue");
+
+        JSONObject jsonObject = new JSONObject(response.asString());
+        for (int i = 0; i < jsonObject.getJSONArray("applyKeyValueList").length(); i++) {
+            String valueList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("value").toString();
+            String keyList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("key").toString();
+            System.out.println(keyList + ": " + valueList);
+        }
+
+
+    }
+
+    @Test
+    public void parsingXMLResponseTest() {
+
+//        given()
+//                .when()
+//                .get("http://restapi.adequateshop.com/api/Traveler?page=2")
+//                .then()
+//                .statusCode(200)
+//                .body("TravelerinformationResponse.page",equalTo("2"))
+//                .log().body();
+
+        Response response = given()
+                .when()
+                .get("http://restapi.adequateshop.com/api/Traveler?page=2");
+
+        String pageNumber = response.xmlPath().get("TravelerinformationResponse.page").toString();
+        Assert.assertEquals(pageNumber, "2");
+
+        String travelName = response.xmlPath().get("TravelerinformationResponse.travelers.Travelerinformation[0].name");
+        Assert.assertEquals(travelName, "ASCAS");
+    }
+
+    @Test
+    public void singleFileUploadTest() {
+        File file = new File("C:\\Automation\\test.txt");
+        given()
+                .multiPart("file", file)
+                .contentType(ContentType.MULTIPART)
+                .when()
+                .get("http://localhost:4200/uploadFile")
+                .then()
+                .statusCode(200)
+                .log().all();
+
+    }
+
+    @Test
+    public void multipleFileUploadTest() {
+
+        File txtFile = new File("C:\\Automation\\test.txt");
+        File pdfFile = new File("C:\\Automation\\test.pdf");
+
+        File fileArray[] = {txtFile, pdfFile};
+        given()
+                .multiPart("files", fileArray)
+                .contentType(ContentType.MULTIPART)
+                .when()
+                .get("http://localhost:4200/multipleUploadFiles")
+                .then()
+                .statusCode(200)
+                .log().all();
     }
 }
