@@ -1,4 +1,7 @@
-Rest Assured Example
-    o testng
-    o jackson-databind
-    o javafaker
+### **REST ASSURED WITH JAVA**
+
+------
+
+- testng 
+- jackson-databind
+- javafaker
