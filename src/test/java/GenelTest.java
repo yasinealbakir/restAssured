@@ -8,12 +8,10 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,7 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static java.lang.System.*;
+import static java.lang.System.out;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GenelTest {
@@ -382,4 +380,6 @@ public class GenelTest {
         String jsonObject = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);
         out.println(jsonObject);
     }
+
+
 }
