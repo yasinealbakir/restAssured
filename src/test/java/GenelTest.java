@@ -2,6 +2,7 @@ import Pojo.PostClass;
 import Pojo.Student;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
@@ -20,6 +21,7 @@ import java.io.FileReader;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -173,6 +175,7 @@ public class GenelTest {
     public void jsonObjectConvertTest() {
         HashMap data = new HashMap();
         data.put("basvuruId", "200000427");
+
         Response response = given()
                 .contentType(ContentType.JSON)
                 .body(data)
@@ -180,6 +183,8 @@ public class GenelTest {
                 .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue");
 
         JSONObject jsonObject = new JSONObject(response.asString());
+        out.println("JsonObject --> " + jsonObject);
+
         for (int i = 0; i < jsonObject.getJSONArray("applyKeyValueList").length(); i++) {
             String valueList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("value").toString();
             String keyList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("key").toString();
@@ -360,5 +365,21 @@ public class GenelTest {
                 .then()
                 .statusCode(200)
                 .log().body();
+    }
+
+    @Test
+    public void fakerDataTest() throws JsonProcessingException {
+        Student student = new Student();
+        Faker fakeData = new Faker(new Locale("TR"));
+
+        student.setName(fakeData.name().fullName());
+        student.setLocation(fakeData.address().cityName());
+        student.setPhone(fakeData.phoneNumber().cellPhone());
+        String course[] = {"Selenium", "JMeter", "CodeceptJS"};
+        student.setCourses(course);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonObject = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);
+        out.println(jsonObject);
     }
 }
