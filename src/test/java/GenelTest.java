@@ -1,4 +1,7 @@
 import Pojo.PostClass;
+import Pojo.Student;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
@@ -11,10 +14,13 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
+import static java.lang.System.*;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GenelTest {
@@ -126,18 +132,18 @@ public class GenelTest {
 
         //Spesific cookie get key
         String cookie = res.getCookie("JSESSIONID");
-        System.out.println("value of cookie is ----> " + cookie);
+        out.println("value of cookie is ----> " + cookie);
 
         //Get all cookies
-        System.out.println("value of all cookies ---> " + res.getCookies());
+        out.println("value of all cookies ---> " + res.getCookies());
 
         // Get all cookies in keyset
         Map<String, String> cookies_value = res.getCookies();
-        System.out.println("cookies in keyset --> " + cookies_value.keySet());
+        out.println("cookies in keyset --> " + cookies_value.keySet());
 
         for (String k : cookies_value.keySet()) {
             String cookie_value = res.getCookie(k);
-            System.out.println(k + ": " + cookie_value);
+            out.println(k + ": " + cookie_value);
         }
         Assert.assertEquals(res.getStatusCode(), 200);
 
@@ -150,12 +156,12 @@ public class GenelTest {
                 .get("https://onlineislemler.turktrust.com.tr/login.xhtml");
 
         String header_value = res.getHeader("Content-Type");
-        System.out.println("Header value is ---> " + header_value);
+        out.println("Header value is ---> " + header_value);
 
         //All header key and value
         Headers headers = res.getHeaders();
         for (Header h : headers) {
-            System.out.println(h.getName() + ": " + h.getValue());
+            out.println(h.getName() + ": " + h.getValue());
         }
     }
 
@@ -173,7 +179,7 @@ public class GenelTest {
         for (int i = 0; i < jsonObject.getJSONArray("applyKeyValueList").length(); i++) {
             String valueList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("value").toString();
             String keyList = jsonObject.getJSONArray("applyKeyValueList").getJSONObject(i).get("key").toString();
-            System.out.println(keyList + ": " + valueList);
+            out.println(keyList + ": " + valueList);
         }
 
 
@@ -230,5 +236,40 @@ public class GenelTest {
                 .then()
                 .statusCode(200)
                 .log().all();
+    }
+
+    @Test
+    public void serializableTest() throws JsonProcessingException {
+        // create java object using pojo class
+        Student student = new Student();
+        student.setName("Yasin");
+        student.setLocation("Ankara");
+        student.setPhone("0312 123 00 00");
+        String course[] = {"Selenium", "JMeter", "CodeceptJS"};
+        student.setCourses(course);
+
+        // convert java object to json object (serialization)
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonObject = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);
+        out.println(jsonObject);
+
+    }
+
+    @Test
+    public void deSerializableTest() throws JsonProcessingException {
+        String jsonData = "{\n" +
+                "  \"name\" : \"Yasin\",\n" +
+                "  \"location\" : \"Ankara\",\n" +
+                "  \"phone\" : \"0312 123 00 00\",\n" +
+                "  \"courses\" : [ \"Selenium\", \"JMeter\", \"CodeceptJS\" ]\n" +
+                "}";
+
+        //convert json data to java object
+        ObjectMapper objectMapper = new ObjectMapper();
+        Student student = objectMapper.readValue(jsonData, Student.class);
+        out.println(MessageFormat.format("Name: {0}", student.getName()));
+        out.println(MessageFormat.format("Location: {0}", student.getLocation()));
+        out.println(MessageFormat.format("Phone: {0}", student.getPhone()));
+        out.println(MessageFormat.format("Courses: {0}", Arrays.toString(student.getCourses())));
     }
 }
