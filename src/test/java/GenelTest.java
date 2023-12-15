@@ -2,14 +2,17 @@ import Pojo.PostClass;
 import Pojo.Student;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -112,6 +115,7 @@ public class GenelTest {
     @Test
     public void queryAndPathParamTest() {
         //https://reqres.in/api/users?page=2&id=5
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
         given()
                 .pathParam("mypath", "users")
                 .queryParam("page", 2)
@@ -252,7 +256,6 @@ public class GenelTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonObject = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(student);
         out.println(jsonObject);
-
     }
 
     @Test
@@ -271,5 +274,91 @@ public class GenelTest {
         out.println(MessageFormat.format("Location: {0}", student.getLocation()));
         out.println(MessageFormat.format("Phone: {0}", student.getPhone()));
         out.println(MessageFormat.format("Courses: {0}", Arrays.toString(student.getCourses())));
+    }
+
+    @Test
+    public void basicAuthenticationTest() {
+        //Basic Authentication ile yapılan kimlik doğrulaması işlemlerinde encryption veya hash alma işlemleri kullanılmaz ve Base64 encode değeri clear-text olarak gönderilir.
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+        given()
+                .auth().basic("postman", "password")
+                .when()
+                .get("https://postman-echo.com/basic-auth")
+                .then()
+                .statusCode(200)
+                .body("authenticated", equalTo(true));
+    }
+
+    @Test
+    public void digestAuthenticationTest() {
+        // Basic Authentication yönteminde olduğu gibi sadece base64 ile encode edip clear-text göndermek yerine belirli kombinasyonları rastgele bir nonce değeri ile MD5 hashini alarak verinin gizliliğini sağlar.
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+        given()
+                .auth().digest("postman", "password")
+                .when()
+                .get("https://postman-echo.com/basic-auth")
+                .then()
+                .statusCode(200)
+                .body("authenticated", equalTo(true));
+    }
+
+    @Test
+    public void preemptiveAuthenticationTest() {
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+        given()
+                .auth().preemptive().basic("postman", "password")
+                .when()
+                .get("https://postman-echo.com/basic-auth")
+                .then()
+                .statusCode(200)
+                .body("authenticated", equalTo(true));
+    }
+
+    @Test
+    public void bearerTokenAuthenticationTest() {
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+        String token = "ghp_";
+        given()
+                .header("Authorization", MessageFormat.format("Bearer  {0}", token))
+                .when()
+                .get("https://api.github.com/user/repos")
+                .then()
+                .statusCode(200)
+                .log().body();
+    }
+
+    @Test
+    public void oAuth1AuthenticationTest() {
+        given()
+                .auth().oauth("consumerKey", "consumerSecret", "accessToken", "tokenSecret")
+                .when()
+                .get("url")
+                .then()
+                .statusCode(200)
+                .log().body();
+    }
+
+    @Test
+    public void oAuth2AuthenticationTest() {
+        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+        String token = "ghp_d";
+        given()
+                .auth().oauth2(token)
+                .when()
+                .get("https://api.github.com/user/repos")
+                .then()
+                .statusCode(200)
+                .log().body();
+    }
+
+    @Test
+    public void apiKeyAuthenticationTest() {
+        given()
+                .queryParam("appid", "apiKey")
+                .when()
+                .get("api.url")
+                .then()
+                .statusCode(200)
+                .log().body();
     }
 }
