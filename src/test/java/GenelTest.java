@@ -1,6 +1,5 @@
-import Pojo.PostClass;
+import Pojo.Apply;
 import Pojo.Student;
-import Pojo.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -12,7 +11,6 @@ import io.restassured.response.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Assert;
-import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -82,7 +80,7 @@ public class GenelTest {
     @Test
     public void checkMvdCardTypeTest() {
         // pojo class using
-        PostClass pojoData = new PostClass();
+        Apply pojoData = new Apply();
         pojoData.setBasvuruId("200000000222");
 
         given()

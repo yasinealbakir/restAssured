@@ -1,6 +1,6 @@
 package Pojo;
 
-public class PostClass {
+public class Apply {
 
     public String getBasvuruId() {
         return basvuruId;
