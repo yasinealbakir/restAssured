@@ -1,5 +1,6 @@
 import Pojo.PostClass;
 import Pojo.Student;
+import Pojo.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -11,6 +12,7 @@ import io.restassured.response.Response;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.testng.Assert;
+import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -27,6 +29,8 @@ import static java.lang.System.out;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GenelTest {
+
+    Faker fakeData = new Faker(new Locale("TR"));
 
     public JSONObject readJsonFile(String file) throws FileNotFoundException {
         File jsonFile = new File(file);
@@ -368,8 +372,6 @@ public class GenelTest {
     @Test
     public void fakerDataTest() throws JsonProcessingException {
         Student student = new Student();
-        Faker fakeData = new Faker(new Locale("TR"));
-
         student.setName(fakeData.name().fullName());
         student.setLocation(fakeData.address().cityName());
         student.setPhone(fakeData.phoneNumber().cellPhone());
