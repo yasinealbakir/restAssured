@@ -1,4 +1,4 @@
-import Pojo.User;
+import api.payload.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -66,7 +66,7 @@ public class UserOperation {
         user.setName(fakeData.name().fullName());
         user.setGender("Male");
         user.setEmail(fakeData.internet().emailAddress());
-        user.setStatus("inactive");
+        user.setStatus("active");
 
         RestAssured.useRelaxedHTTPSValidation();
         ObjectMapper objectMapper = new ObjectMapper();
