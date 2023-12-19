@@ -1,4 +1,4 @@
-package Pojo;
+package api.payload;
 
 import java.io.Serializable;
 

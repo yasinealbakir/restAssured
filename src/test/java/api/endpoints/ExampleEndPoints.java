@@ -1,3 +1,5 @@
+package api.endpoints;
+
 import api.payload.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +15,7 @@ import java.util.Locale;
 import static io.restassured.RestAssured.given;
 import static java.lang.System.out;
 
-public class UserOperation {
+public class ExampleEndPoints {
     Faker fakeData = new Faker(new Locale("US"));
     String token = "3e52b3015a6a1ce06e7b1f2fbf38ae002f80491e342f7feb0220b17fbe1084aa";
 

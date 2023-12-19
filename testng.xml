@@ -3,7 +3,7 @@
 <suite name="All Test Suite">
     <test name="Dry-Run">
         <classes>
-            <class name="UserOperation">
+            <class name="api.endpoints.ExampleEndPoints">
                 <methods>
                     <include name="createUserTest"/>
                     <include name="getUserTest"/>

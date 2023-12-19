@@ -1,5 +1,7 @@
-import Pojo.Apply;
-import Pojo.Student;
+package api.test;
+
+import api.payload.Apply;
+import api.payload.Student;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -26,7 +28,7 @@ import static io.restassured.RestAssured.given;
 import static java.lang.System.out;
 import static org.hamcrest.Matchers.equalTo;
 
-public class GenelTest {
+public class ExampleTest {
 
     Faker fakeData = new Faker(new Locale("TR"));
 

@@ -4,11 +4,14 @@ import api.endpoints.UserEndPoints;
 import api.payload.User;
 import com.github.javafaker.Faker;
 import io.restassured.response.Response;
+import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import static org.hamcrest.Matchers.equalTo;
 
 import java.util.Locale;
 
@@ -19,7 +22,7 @@ public class UserTests {
     Faker fakeData;
     User userPayload;
 
-    @BeforeMethod
+    @BeforeClass
     public void setup() {
         fakeData = new Faker(new Locale("US"));
         userPayload = new User();
@@ -52,20 +55,35 @@ public class UserTests {
     @Test(priority = 2)
     public void updateUserTest(ITestContext context) {
         int id = (int) context.getAttribute("user_id");
-        Response response = UserEndPoints.
+        userPayload.setStatus("inactive"); // just updated the 'status' field
+
+        Response updateResponse = UserEndPoints.
                 updateUser(id, userPayload);
-        response.then()
+        updateResponse.then()
+                .statusCode(200);
+
+        //Checking data after update operation
+        Response getResponse = UserEndPoints.getUser(id);
+        getResponse.then().
+                body("status", equalTo("inactive"))
                 .log().body()
                 .statusCode(200);
+
     }
 
     @Test(priority = 3)
     public void deleteUserTest(ITestContext context) {
         int id = (int) context.getAttribute("user_id");
-        Response response = UserEndPoints.deleteUser(id);
-        response.then()
+        Response deleteResponse = UserEndPoints.deleteUser(id);
+        deleteResponse.then()
                 .log().body()
                 .statusCode(204);
+
+        //Checking data after delete operation
+        Response getResponse = UserEndPoints.getUser(id);
+        getResponse.then().body("message", equalTo("Resource not found"))
+                .log().body()
+                .statusCode(404);
     }
 
 }
