@@ -2,6 +2,7 @@ package api.test;
 
 import api.payload.Apply;
 import api.payload.Student;
+import api.utilities.JsonUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static api.utilities.JsonUtility.readJsonFile;
 import static io.restassured.RestAssured.given;
 import static java.lang.System.out;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,14 +33,6 @@ import static org.hamcrest.Matchers.equalTo;
 public class ExampleTest {
 
     Faker fakeData = new Faker(new Locale("TR"));
-
-    public JSONObject readJsonFile(String file) throws FileNotFoundException {
-        File jsonFile = new File(file);
-        FileReader fileReader = new FileReader(jsonFile);
-        JSONTokener jsonTokener = new JSONTokener(fileReader);
-        JSONObject jsonData = new JSONObject(jsonTokener);
-        return jsonData;
-    }
 
     @Test
     public void checkTckkCardTypeTest() {
@@ -104,10 +98,9 @@ public class ExampleTest {
         // external json file using
         given()
                 .contentType(ContentType.JSON)
-                .body(readJsonFile("src/test/resources/JsonFiles/body.json").toString())
+                .body(readJsonFile("body.json").toString())
                 .when()
                 .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue")
-
                 .then()
                 .body("cardType", equalTo("TCKK"))
                 .body("isContactCoding", equalTo(false))
