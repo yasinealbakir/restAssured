@@ -13,6 +13,6 @@ public class Routes {
     public static String POSTS_GET_URL = BASE_URL + "/users/{id}/posts";
     public static String POSTS_POST_URL = BASE_URL + "/users/{id}/posts";
 
-    public static String TOKEN = "4792779a7752b803e0736ede9a800ade3edfdadbdf9072c8d72f0ec9016fea8a";
+    public static String TOKEN = "eee75e4f8cdf586516a588c7c1516000ae6162c5501aa86ecad1031fe6a64cd3";
 
 }
