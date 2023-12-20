@@ -4,20 +4,15 @@ import api.endpoints.UserEndPoints;
 import api.payload.User;
 import com.github.javafaker.Faker;
 import io.restassured.response.Response;
-import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-import static org.hamcrest.Matchers.equalTo;
 
 import java.util.Locale;
 
-import static java.lang.System.out;
+import static org.hamcrest.Matchers.equalTo;
 
-public class UserTests {
+public class UserTestsWithFaker {
 
     Faker fakeData;
     User userPayload;
