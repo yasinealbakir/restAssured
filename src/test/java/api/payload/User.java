@@ -1,5 +1,6 @@
 package api.payload;
 
+
 public class User {
 
     public String getName() {
@@ -38,4 +39,6 @@ public class User {
     String gender;
     String email;
     String status;
+
+
 }

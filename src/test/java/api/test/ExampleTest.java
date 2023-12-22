@@ -2,23 +2,22 @@ package api.test;
 
 import api.payload.Apply;
 import api.payload.Student;
-import api.utilities.JsonUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +32,21 @@ import static org.hamcrest.Matchers.equalTo;
 public class ExampleTest {
 
     Faker fakeData = new Faker(new Locale("TR"));
+
+    @Test
+    public void googleTest() {
+        RestAssured.useRelaxedHTTPSValidation();
+        RequestSpecBuilder builder = new RequestSpecBuilder();
+        builder.setBody("");
+        RequestSpecification spec = builder.build();
+        RestAssured.baseURI = "https://www.turktrust.com.tr";
+        Response res = given()
+                .spec(spec)
+                .when()
+                .get("");
+        String body = res.getBody().asPrettyString();
+        out.println(body);
+    }
 
     @Test
     public void checkTckkCardTypeTest() {

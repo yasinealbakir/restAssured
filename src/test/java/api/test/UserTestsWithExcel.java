@@ -20,7 +20,6 @@ public class UserTestsWithExcel {
 
         Response response = UserEndPoints.createUser(payload);
         response.then().statusCode(201).log().body();
-
     }
 
 }
