@@ -2,6 +2,9 @@ package api.test;
 
 import api.payload.Apply;
 import api.payload.Student;
+import api.payload.User;
+import api.utilities.DataProviders;
+import api.utilities.ExcelUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -14,6 +17,9 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -24,14 +30,18 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static api.endpoints.Routes.TOKEN;
 import static api.utilities.JsonUtility.readJsonFile;
+import static io.restassured.RestAssured.baseURI;
 import static io.restassured.RestAssured.given;
 import static java.lang.System.out;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasXPath;
 
 public class ExampleTest {
 
     Faker fakeData = new Faker(new Locale("TR"));
+
 
     @Test
     public void googleTest() {
@@ -49,84 +59,130 @@ public class ExampleTest {
     }
 
     @Test
-    public void checkTckkCardTypeTest() {
-        // Hashmap using
-        HashMap data = new HashMap();
-        data.put("basvuruId", "200000427");
+    public void firstTestScenario() {
+        Response response = RestAssured.get("https://reqres.in/api/users?page=2");
+        Assert.assertEquals(response.getStatusCode(), 200);
+    }
+
+    @Test
+    public void firstBddTestScenario() {
+        RestAssured.useRelaxedHTTPSValidation();
         given()
-                .contentType(ContentType.JSON)
+                .when()
+                .get("https://reqres.in/api/users?page=2")
+                .then()
+                .statusCode(200)
+                .log().body();
+    }
+
+    @Test(priority = 0)
+    public void createUserTest(ITestContext context) {
+        RestAssured.baseURI = "https://reqres.in/api";
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("name", "Yasin");
+        data.put("job", "Tester");
+
+        Response response = given()
                 .body(data)
                 .when()
-                .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue")
+                .post("/users");
 
+        context.setAttribute("userId", response.jsonPath().getInt("id"));
+    }
+
+    @Test(priority = 1, dependsOnMethods = "createUserTest")
+    public void updateUserTest(ITestContext context) {
+        RestAssured.baseURI = "https://reqres.in/api";
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("name", "Salih");
+        data.put("job", "Teacher");
+        String userId = (String) context.getAttribute("userId");
+
+        given()
+                .body(data)
+                .when()
+                .put("/users/" + userId)
                 .then()
-                .body("cardType", equalTo("TCKK"))
-                .body("isContactCoding", equalTo(true))
-                .body("isContactLessCoding", equalTo(true))
                 .statusCode(200)
-                .log().all(); //all yerine body, cookies ve headers da spesific verilebilir.
+                .log().body();
     }
 
     @Test
-    public void checkBlueCardTypeTest() {
-        // org.json library using
+    public void orgJsonLibraryUsingTest() {
+        RestAssured.useRelaxedHTTPSValidation();
+        baseURI = "https://gorest.co.in/public/v2";
+
         JSONObject jsonData = new JSONObject();
-        jsonData.put("basvuruId", "200000000226");
+        jsonData.put("name", "Hasan");
+        jsonData.put("email", "hasan@test.com");
+        jsonData.put("gender", "Male");
+        jsonData.put("status", "active");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(jsonData.toString()) //data stringe çevrilmezse hata alınıyor.
+                .headers("Authorization", "Bearer " + TOKEN)
+                .body(jsonData.toString())
                 .when()
-                .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue")
+                .post("/users")
+                .then().statusCode(201);
+    }
 
-                .then()
-                .body("cardType", equalTo("TCKK"))
-                .body("isContactCoding", equalTo(false))
-                .body("isContactLessCoding", equalTo(true))
-                .statusCode(200)
-                .log().all();
+
+    @Test
+    public void pojoClassUsingTest() {
+        baseURI = "https://gorest.co.in/public/v2";
+
+        User userData = new User();
+        userData.setName("Hasan");
+        userData.setEmail("hasan@abc.com");
+        userData.setGender("Male");
+        userData.setStatus("active");
+
+        given()
+                .contentType(ContentType.JSON)
+                .headers("Authorization", "Bearer " + TOKEN)
+                .body(userData)
+                .when()
+                .post("/users")
+                .then().statusCode(201);
     }
 
     @Test
-    public void checkMvdCardTypeTest() {
-        // pojo class using
-        Apply pojoData = new Apply();
-        pojoData.setBasvuruId("200000000222");
-
+    public void externalJsonFileTest() {
+        baseURI = "https://gorest.co.in/public/v2";
         given()
                 .contentType(ContentType.JSON)
-                .body(pojoData)
+                .headers("Authorization", "Bearer " + TOKEN)
+                .body(readJsonFile("userData.json").toString())
                 .when()
-                .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue")
-
-                .then()
-                .body("cardType", equalTo("TCKK"))
-                .body("isContactCoding", equalTo(true))
-                .body("isContactLessCoding", equalTo(false))
-                .statusCode(200)
-                .log().all();
+                .post("/users")
+                .then().statusCode(201);
     }
 
-    @Test
-    public void checkSecurityCardTypeTest() throws FileNotFoundException {
-        // external json file using
+    @Test(dataProvider = "user-data", dataProviderClass = DataProviders.class)
+    public void externalExelFileTest(String[] userData) {
+        RestAssured.useRelaxedHTTPSValidation();
+        baseURI = "https://gorest.co.in/public/v2";
+
+        User user = new User();
+        user.setName(userData[0]);
+        user.setGender(userData[1]);
+        user.setEmail(userData[2]);
+        user.setStatus(userData[3]);
+
         given()
                 .contentType(ContentType.JSON)
-                .body(readJsonFile("body.json").toString())
+                .headers("Authorization", "Bearer " + TOKEN)
+                .body(user)
                 .when()
-                .post("http://localhost:7001/api/TckkNBSMachine/GetApplyKeyValue")
-                .then()
-                .body("cardType", equalTo("TCKK"))
-                .body("isContactCoding", equalTo(false))
-                .body("isContactLessCoding", equalTo(false))
-                .statusCode(200)
-                .log().all();
+                .post("/users")
+                .then().statusCode(201);
     }
 
     @Test
     public void queryAndPathParamTest() {
         //https://reqres.in/api/users?page=2&id=5
-        RestAssured.useRelaxedHTTPSValidation(); //SSL certificate by-pass
+
         given()
                 .pathParam("mypath", "users")
                 .queryParam("page", 2)
@@ -204,24 +260,58 @@ public class ExampleTest {
     }
 
     @Test
-    public void parsingXMLResponseTest() {
+    public void parsingJsonResponseBodyTest() {
+        ;
+        baseURI = "https://gorest.co.in/public/v2";
+        String TOKEN = "e095...";
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers("Authorization", "Bearer " + TOKEN)
+                .pathParam("id", 5850682)
+                .when()
+                .get("/users/{id}");
 
-//        given()
-//                .when()
-//                .get("http://restapi.adequateshop.com/api/Traveler?page=2")
-//                .then()
-//                .statusCode(200)
-//                .body("TravelerinformationResponse.page",equalTo("2"))
-//                .log().body();
+        Assert.assertEquals(response.jsonPath().getInt("id"), 5850682);
+    }
 
+    @Test
+    public void parsingJsonResponseBodyTest2() {
+        ;
+        RestAssured.useRelaxedHTTPSValidation();
+        baseURI = "https://reqres.in/api/users?page=2";
         Response response = given()
                 .when()
-                .get("http://restapi.adequateshop.com/api/Traveler?page=2");
+                .get("");
+        out.println(response.getBody().prettyPrint());
+        String xx = response.jsonPath().getString("data[0].first_name");
+        out.println(xx);
+    }
 
-        String pageNumber = response.xmlPath().get("TravelerinformationResponse.page").toString();
+    @Test
+    public void validateXmlTest() {
+
+//        given()
+//                .pathParam("path", "Traveler")
+//                .queryParam("page", 2)
+//                .when()
+//                .get("{path}")
+//                .then()
+////                .body("TravelerinformationResponse.page", equalTo("2"))
+//                .body(hasXPath("/TravelerinformationResponse/page", equalTo("2")));
+
+        baseURI = "http://restapi.adequateshop.com/api/";
+        Response response = given()
+                .pathParam("path", "Traveler")
+                .queryParam("page", 2)
+                .when()
+                .get("{path}");
+
+        String pageNumber = response.xmlPath().
+                get("TravelerinformationResponse.page").toString();
         Assert.assertEquals(pageNumber, "2");
 
-        String travelName = response.xmlPath().get("TravelerinformationResponse.travelers.Travelerinformation[0].name");
+        String travelName = response.xmlPath().
+                get("TravelerinformationResponse.travelers.Travelerinformation[0].name");
         Assert.assertEquals(travelName, "ASCAS");
     }
 

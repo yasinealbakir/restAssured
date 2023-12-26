@@ -39,6 +39,4 @@ public class User {
     String gender;
     String email;
     String status;
-
-
 }

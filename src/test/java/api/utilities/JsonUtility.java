@@ -6,23 +6,29 @@ import org.json.JSONTokener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import static java.lang.System.out;
 
 public class JsonUtility {
 
-    public static String path = System.getProperty("user.dir") + "//src//test//resources//JsonFiles//";
+    public static String path = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "JsonFiles").toString();
 
     public static JSONObject readJsonFile(String file) {
-        File jsonFile = new File(path + file);
-        FileReader fileReader = null;
-        try {
-            fileReader = new FileReader(jsonFile);
+        JSONObject jsonData = null;
+
+        try (FileReader fileReader = new FileReader(new File(Paths.get(path, file).toString()))) {
+            JSONTokener jsonTokener = new JSONTokener(fileReader);
+            jsonData = new JSONObject(jsonTokener);
         } catch (FileNotFoundException e) {
-            out.println("File not found --> " + file);
+            System.out.println("File not found --> " + file);
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("An error occurred while reading the JSON file.");
+            e.printStackTrace();
         }
-        JSONTokener jsonTokener = new JSONTokener(fileReader);
-        JSONObject jsonData = new JSONObject(jsonTokener);
+
         return jsonData;
     }
 }

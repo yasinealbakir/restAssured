@@ -95,39 +95,4 @@ public class ExcelUtility {
         fileInputStream.close();
     }
 
-    public void fillGreenColor(String sheetname, int rownum, int colnum) throws IOException {
-        fileInputStream = new FileInputStream(path);
-        workbook = new XSSFWorkbook(fileInputStream);
-        sheet = workbook.getSheet(sheetname);
-        row = sheet.getRow(rownum);
-        cell = row.getCell(colnum);
-
-        cellStyle = workbook.createCellStyle();
-        cellStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cell.setCellStyle(cellStyle);
-        workbook.write(fileOutputStream);
-        workbook.close();
-        fileInputStream.close();
-        fileOutputStream.close();
-
-    }
-
-    public void fillRedColor(String sheetname, int rownum, int colnum) throws IOException {
-        fileInputStream = new FileInputStream(path);
-        workbook = new XSSFWorkbook(fileInputStream);
-        sheet = workbook.getSheet(sheetname);
-        row = sheet.getRow(rownum);
-        cell = row.getCell(colnum);
-
-        cellStyle = workbook.createCellStyle();
-        cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cell.setCellStyle(cellStyle);
-        workbook.write(fileOutputStream);
-        workbook.close();
-        fileInputStream.close();
-        fileOutputStream.close();
-
-    }
 }
