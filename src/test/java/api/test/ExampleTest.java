@@ -16,10 +16,13 @@ import io.restassured.http.Headers;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -177,6 +180,30 @@ public class ExampleTest {
                 .when()
                 .post("/users")
                 .then().statusCode(201);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Hasan, hasan@asd.com.be, Male, active",
+            "Yasin, yasin@asd.com.be, Male, active"
+    })
+    public void csvSourceParameterizing(String name, String email, String gender, String status) {
+        RestAssured.useRelaxedHTTPSValidation();
+        baseURI = "https://gorest.co.in/public/v2";
+        HashMap<String, String> variables = new HashMap<>();
+        variables.put("name", name);
+        variables.put("email", email);
+        variables.put("gender", gender);
+        variables.put("status", status);
+
+        given()
+                .contentType(ContentType.JSON)
+                .headers("Authorization", "Bearer " + TOKEN)
+                .body(variables)
+                .when()
+                .post("/users")
+                .then().statusCode(201);
+
     }
 
     @Test
